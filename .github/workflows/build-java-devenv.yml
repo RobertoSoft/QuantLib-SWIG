@@ -1,0 +1,41 @@
+name: Build custom Java devenv image
+on:
+  workflow_dispatch:
+    inputs:
+      quantlib_repo:
+        description: 'QuantLib repository with new calendars (owner/repo)'
+        required: true
+      quantlib_ref:
+        description: 'QuantLib branch/tag/commit'
+        required: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+    - uses: actions/checkout@v4
+    - name: Checkout QuantLib
+      uses: actions/checkout@v4
+      with:
+        repository: ${{ github.event.inputs.quantlib_repo }}
+        path: dockerfiles/QuantLib
+        ref: ${{ github.event.inputs.quantlib_ref }}
+    - name: Remove QuantLib git history
+      run: rm -rf dockerfiles/QuantLib/.git
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v4
+      with:
+        registry: ghcr.io
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build images
+      working-directory: dockerfiles
+      run: |
+        docker build -f ci.base.Dockerfile       -t ghcr.io/lballabio/quantlib-swig-devenv:base .
+        docker build -f ci.threadsafe.Dockerfile -t ghcr.io/lballabio/quantlib-swig-devenv:threadsafe .
+        docker build -f ci.java.Dockerfile       -t ghcr.io/lballabio/quantlib-swig-devenv:java .
+        docker tag ghcr.io/lballabio/quantlib-swig-devenv:java \
+                   ghcr.io/${{ github.repository_owner }}/quantlib-swig-devenv:java
+    - name: Push java image
+      run: docker push ghcr.io/${{ github.repository_owner }}/quantlib-swig-devenv:java
