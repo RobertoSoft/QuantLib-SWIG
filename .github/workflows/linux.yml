@@ -17,14 +17,12 @@ jobs:
           - language: python
           - language: java
             config: -old
-            use_custom_image: true
           - language: java
             config: -new
-            use_custom_image: true
           - language: csharp
           - language: r
           - language: scala
-    container: ${{ matrix.use_custom_image && format('ghcr.io/{0}/quantlib-swig-devenv:{1}', github.repository_owner, matrix.language) || format('ghcr.io/lballabio/quantlib-swig-devenv:{0}', matrix.language) }}
+    container: ghcr.io/lballabio/quantlib-swig-devenv:${{ matrix.language }}
     steps:
     - uses: actions/checkout@v6
     - name: Build
