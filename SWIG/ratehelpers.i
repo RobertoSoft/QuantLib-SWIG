@@ -354,7 +354,7 @@ class GenericRateHelper : public RateHelper {
                       const Frequency& frequency,
                       const bool &extrapolate);
 
-    Real impliedQuote();
+    Real impliedQuote() const;
 };
 
 %shared_ptr(FixedRateBondHelper)
