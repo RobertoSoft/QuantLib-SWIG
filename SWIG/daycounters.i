@@ -71,6 +71,7 @@ namespace QuantLib {
       public:
         Actual366(const bool includeLastDay = false);
     };
+    class Actual365NoLeap : public DayCounter {};
     class Actual36525 : public DayCounter {
       public:
         Actual36525(const bool includeLastDay = false);
